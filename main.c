@@ -8,10 +8,11 @@
 #include "SDL/include/SDL_rect.h"
 #include "SDL/include/SDL_render.h"
 
-#define WIDTH 800.0f
-#define HEIGHT 600.0f
-#define NUM_OF_PARTICLES 250
+#define WIDTH 200.0f
+#define HEIGHT 200.0f
 #define SIZE 2
+#define STEP 1
+#define NUM_OF_PARTICLES 1000
 
 typedef struct {
   SDL_Rect rect;
@@ -23,10 +24,10 @@ typedef struct {
 
 SDL_Rect particles[NUM_OF_PARTICLES];
 
-vec2 pos_init(int min, int max) {
+vec2 pos_init(int xmin, int xmax, int ymin, int ymax) {
 
-  int posx = (rand() % (max - min + 1)) + min;
-  int posy = (rand() % (max - min + 1)) + min;
+  int posx = (rand() % (xmax - xmin + 1)) + xmin;
+  int posy = (rand() % (ymax - ymin + 1)) + ymin;
 
   return (vec2) { posx, posy };
 }
@@ -37,13 +38,34 @@ void delay(int numOfSec) {
   while(clock() < startTime + numOfMilliSec);
 }
 
-bool isOcupied() {
+typedef struct {
+  bool bottom;
+  bool side1;
+  bool side2;
+} available_positions;
+
+available_positions isOcupied(int x, int y) {
   // TODO: implement func
-  return false;
+
+  available_positions res = { .bottom = true, .side1 = true, .side2 = true };
+
+
+  for (int i = 0; i < NUM_OF_PARTICLES; i++) {
+    if (particles[i].y == y + SIZE && particles[i].x == x) {
+      res.bottom = false;
+    } else if (particles[i].x == x + SIZE && y == particles[i].y) {
+      res.side1 = false;
+    }  else if (particles[i].x == x - SIZE  && y == particles[i].y) {
+      res.side2 = false;
+    }
+
+  }
+
+  return res;
 }
 
 void clear(SDL_Renderer * renderer) {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderPresent(renderer);
   SDL_RenderClear(renderer);
 }
@@ -56,14 +78,16 @@ void draw(SDL_Renderer * renderer, SDL_Rect * rect) {
 
 void populate(int num_of_particles) {
 
-  int max = 200;
-  int min = 200;
+  int xmax = 10;
+  int xmin = 50;
+  int ymin = 0;
+  int ymax = 150;
 
   for (int i = 0; i < num_of_particles; i++) {
 
     SDL_Rect rect; 
 
-    vec2 pos = pos_init(min, max);
+    vec2 pos = pos_init(xmin, xmax, ymin, ymax);
 
     rect.x = pos.x;
     rect.y = pos.y;
@@ -81,15 +105,27 @@ void draw_all(SDL_Renderer *renderer, int num_of_particles) {
 }
 
 void update(int num_of_particles) {
+  srand(time(NULL));
+
   for (int i = 0; i < num_of_particles; i++) {
-    
-    int min = 0;
-    int max = 600;
+     
+    available_positions pos = isOcupied(particles[i].x, particles[i].y);
 
-    vec2 pos = pos_init(min, max);
-
-    particles[i].x = pos.x; 
-    particles[i].y = pos.y; 
+    int r = rand();
+   
+    if (pos.bottom && particles[i].y <= 150) {
+      particles[i].x = particles[i].x; 
+      particles[i].y = particles[i].y + 2;
+    } else if (pos.side1 && (r % 2) == 0) {
+        particles[i].x = particles[i].x + 2; 
+        particles[i].y = particles[i].y; 
+    } else if (pos.side2 && (r % 2) == 1) {
+        particles[i].x = particles[i].x - 2; 
+        particles[i].y = particles[i].y; 
+    } else {
+        particles[i].x = particles[i].x; 
+        particles[i].y = particles[i].y; 
+    }
   }
 }
 
@@ -120,12 +156,9 @@ int main() {
       return 1;
   }
 
-  SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-  SDL_RenderFillRect(renderer, &particles[1]);
-
   clear(renderer);
   
-  populate(100);
+  populate(NUM_OF_PARTICLES);
 
   SDL_Event event;
 
@@ -143,23 +176,18 @@ int main() {
         break;
     }
 
-    for (int iter = 0; iter < 100; iter++) {
 
-    for (int i = 0; i < NUM_OF_PARTICLES; i++) {
+    for (int iter = 0; iter < 300; iter++) {
+      for (int i = 0; i < NUM_OF_PARTICLES; i++) {
+        SDL_SetRenderDrawColor(renderer, 194, 178, 128, 255);
+        SDL_RenderFillRect(renderer, &particles[i]);
+      }
 
-      SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-      SDL_RenderFillRect(renderer, &particles[i]);
-
+      SDL_RenderPresent(renderer);
+      clear(renderer);
+      update(NUM_OF_PARTICLES);
+      delay(100);
     }
-
-    SDL_RenderPresent(renderer);
-    clear(renderer);
-
-    update(NUM_OF_PARTICLES);
-
-    delay(100);
-
-  }
 
   clear(renderer);
 
