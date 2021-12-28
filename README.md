@@ -26,13 +26,18 @@ cd particle-simulation/
 
 Building the sand simulation alone
 ```bash
-bash build
+bash build.sh
 ```
 
 Building the water + sand simulation
 ```bash
-bash build --water
+bash build.sh --water
 ```
+
+executable will be present in the ./build/
+to change the name out the build the change the ```BUILD_DIR``` variable in the 
+```build.sh```
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

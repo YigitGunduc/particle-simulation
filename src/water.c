@@ -2,9 +2,9 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <time.h>
-#include "SDL/include/SDL.h"
-#include "SDL/include/SDL_rect.h"
-#include "SDL/include/SDL_render.h"
+#include "../lib/SDL/include/SDL.h"
+#include "../lib/SDL/include/SDL_rect.h"
+#include "../lib/SDL/include/SDL_render.h"
 
 #define SIZE 3
 #define WIDTH 200.0f
