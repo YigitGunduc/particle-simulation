@@ -4,9 +4,9 @@
 #include <time.h>
 #include <malloc.h>
 #include <math.h>
-#include "../lib/SDL/include/SDL.h"
-#include "../lib/SDL/include/SDL_rect.h"
-#include "../lib/SDL/include/SDL_render.h"
+#include "../includes/SDL/include/SDL.h"
+#include "../includes/SDL/include/SDL_rect.h"
+#include "../includes/SDL/include/SDL_render.h"
 
 
 #define SIZE 3
